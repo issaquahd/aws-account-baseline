@@ -4,7 +4,22 @@ Description: >
   one CloudTrail trail for management events into an encrypted private bucket, and an IAM password policy.
   Account-level S3 Block Public Access and EBS default encryption are account settings, not CloudFormation resources;
   check.sh turns them on and reports every control.
+Parameters:
+  AlertEmail:
+    Type: String
+    Description: Where the zero-spend budget emails (kept out of the repo; pass at deploy time)
 Resources:
+  ZeroSpendBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: zero-spend
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit: { Amount: 1, Unit: USD }
+      NotificationsWithSubscribers:
+        - Notification: { NotificationType: ACTUAL, ComparisonOperator: GREATER_THAN, Threshold: 0.01, ThresholdType: ABSOLUTE_VALUE }
+          Subscribers: [{ SubscriptionType: EMAIL, Address: !Ref AlertEmail }]
   Analyzer:
     Type: AWS::AccessAnalyzer::Analyzer
     Properties:

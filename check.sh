@@ -2,6 +2,12 @@
 # Turn on the two account-level settings CloudFormation can't, then report every baseline control. Run in CloudShell.
 set -u
 R=${AWS_REGION:-us-east-2}; ACCT=$(aws sts get-caller-identity --query Account --output text)
+# record the prior account-level values first, so restore.sh can put them back
+{ echo "{"
+  echo "\"s3_bpa\": $(aws s3control get-public-access-block --account-id "$ACCT" --query PublicAccessBlockConfiguration --output json 2>/dev/null || echo null),"
+  echo "\"ebs_default_encryption\": $(aws ec2 get-ebs-encryption-by-default --region "$R" --query EbsEncryptionByDefault --output json),"
+  echo "\"password_policy\": $(aws iam get-account-password-policy --query PasswordPolicy --output json 2>/dev/null || echo null)"
+  echo "}"; } > prior-settings.json
 aws s3control put-public-access-block --account-id "$ACCT" --public-access-block-configuration \
   BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
 aws ec2 enable-ebs-encryption-by-default --region "$R" >/dev/null
