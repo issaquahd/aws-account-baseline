@@ -18,7 +18,7 @@ Resources:
         TimeUnit: MONTHLY
         BudgetLimit: { Amount: 1, Unit: USD }
       NotificationsWithSubscribers:
-        - Notification: { NotificationType: ACTUAL, ComparisonOperator: GREATER_THAN, Threshold: 0.01, ThresholdType: ABSOLUTE_VALUE }
+        - Notification: { NotificationType: ACTUAL, ComparisonOperator: GREATER_THAN, Threshold: 1, ThresholdType: PERCENTAGE }
           Subscribers: [{ SubscriptionType: EMAIL, Address: !Ref AlertEmail }]
   Analyzer:
     Type: AWS::AccessAnalyzer::Analyzer
